@@ -222,7 +222,7 @@ static char *get_uptime() {
     char *uptime = malloc(BUF_SIZE);
     for (int i = 0; i < 3; ++i ) {
         if ((n = seconds / units[i].secs) || i == 2) /* always print minutes */
-            len += snprintf(uptime + len, BUF_SIZE - len, 
+            len += snprintf(uptime + len, BUF_SIZE - len,
                             "%d %s%s, ", n, units[i].name, n != 1 ? "s": "");
         seconds %= units[i].secs;
     }
@@ -230,37 +230,6 @@ static char *get_uptime() {
     // null-terminate at the trailing comma
     uptime[len - 2] = '\0';
     return uptime;
-}
-
-// returns "<Battery Percentage>% [<Charging | Discharging | Unknown>]"
-// Credit: allisio - https://gist.github.com/allisio/1e850b93c81150124c2634716fbc4815
-static char *get_battery_percentage() {
-  int battery_capacity;
-  FILE *capacity_file, *status_file;
-  char battery_status[12] = "Unknown";
-
-  if ((capacity_file = fopen(BATTERY_DIRECTORY "/capacity", "r")) == NULL) {
-    status = ENOENT;
-    halt_and_catch_fire("Unable to get battery information");
-  }
-
-  fscanf(capacity_file, "%d", &battery_capacity);
-  fclose(capacity_file);
-
-  if ((status_file = fopen(BATTERY_DIRECTORY "/status", "r")) != NULL) {
-    fscanf(status_file, "%s", battery_status);
-    fclose(status_file);
-  }
-
-  // max length of resulting string is 19
-  // one byte for padding incase there is a newline
-  // 100% [Discharging]
-  // 1234567890123456789
-  char *battery = malloc(20);
-
-  snprintf(battery, 20, "%d%% [%s]", battery_capacity, battery_status);
-
-  return battery;
 }
 
 static char *get_packages(const char* dirname, const char* pacname, int num_extraneous) {
@@ -308,10 +277,10 @@ static char *get_shell() {
 static char *get_resolution() {
     int screen, width, height;
     char *resolution = malloc(BUF_SIZE);
-    
+
     if (display != NULL) {
         screen = DefaultScreen(display);
-    
+
         width = DisplayWidth(display, screen);
         height = DisplayHeight(display, screen);
 
@@ -324,7 +293,7 @@ static char *get_resolution() {
         FILE *modes;
         char *line = NULL;
         size_t len;
-        
+
         /* preload resolution with empty string, in case we cant find a resolution through parsing */
         strncpy(resolution, "", BUF_SIZE);
 
@@ -354,7 +323,7 @@ static char *get_resolution() {
                 }
             }
         }
-        
+
         closedir(dir);
     }
 
@@ -366,10 +335,10 @@ static char *get_terminal() {
     char *terminal = malloc(BUF_SIZE);
 
     /* check if xserver is running or if we are running in a straight tty */
-    if (display != NULL) {   
+    if (display != NULL) {
 
     unsigned long _, // not unused, but we don't need the results
-                  window = RootWindow(display, XDefaultScreen(display));    
+                  window = RootWindow(display, XDefaultScreen(display));
         Atom a,
              active = XInternAtom(display, "_NET_ACTIVE_WINDOW", True),
              class = XInternAtom(display, "WM_CLASS", True);
@@ -501,6 +470,7 @@ static char *find_gpu(int index) {
 
     while(dev != NULL) {
         pci_fill_info(dev, PCI_FILL_IDENT);
+        pci_fill_info(dev, PCI_FILL_CLASS);
         device_class = pci_lookup_name(pacc, buffer, sizeof(buffer), PCI_LOOKUP_CLASS, dev->device_class);
         if(strcmp("VGA compatible controller", device_class) == 0 || strcmp("3D controller", device_class) == 0) {
             strncpy(gpu, pci_lookup_name(pacc, buffer, sizeof(buffer), PCI_LOOKUP_DEVICE | PCI_LOOKUP_VENDOR, dev->vendor_id, dev->device_id), BUF_SIZE);
@@ -635,6 +605,8 @@ static char *spacer() {
     return calloc(1, 1); // freeable, null-terminated string of length 1
 }
 
+
+
 char *get_cache_file() {
     char *cache_file = malloc(BUF_SIZE);
     char *env = getenv("XDG_CACHE_HOME");
@@ -689,6 +661,9 @@ int main(int argc, char *argv[]) {
     char *cache, *cache_data = NULL;
     FILE *cache_file;
     int read_cache;
+
+    /* Disable line wrap */
+    printf("\e[?7l");
 
     status = uname(&uname_info);
     halt_and_catch_fire("uname failed");
@@ -748,9 +723,12 @@ int main(int argc, char *argv[]) {
 
     free(cache);
     free(cache_data);
-    if(display != NULL) { 
+    if(display != NULL) {
         XCloseDisplay(display);
     }
+
+    /* Re-enable line wrap */
+    printf("\e[?7h");
 
     return 0;
 }

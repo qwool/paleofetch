@@ -1,4 +1,4 @@
-#include "logos/arch.h"
+#include "logos/arch3.h"
 #define COLOR "\e[1;36m"
 
 #define CONFIG \
@@ -10,16 +10,16 @@
     { "Host: ",       get_host,                true  }, \
     { "Kernel: ",     get_kernel,              true  }, \
     { "Uptime: ",     get_uptime,              false }, \
-    { "Battery: ",    get_battery_percentage,  false }, \
     SPACER \
-    { "Packages: ",   get_packages_pacman,   false }, \
-    { "Shell: ",      get_shell,             false }, \
-    { "Resolution: ", get_resolution,        false }, \
-    { "Terminal: ",   get_terminal,          false }, \
+    { "Packages: ",   get_packages_pacman,     false }, \
+    { "Shell: ",      get_shell,               false }, \
+    { "Resolution: ", get_resolution,          false }, \
+    { "Terminal: ",   get_terminal,            false }, \
     SPACER \
     { "CPU: ",        get_cpu,                 true  }, \
     { "GPU: ",        get_gpu1,                true  }, \
     { "Memory: ",     get_memory,              false }, \
+    { "Storage: ",    get_disk_usage_root,     false }, \
     SPACER \
     { "",             get_colors1,             false }, \
     { "",             get_colors2,             false }, \

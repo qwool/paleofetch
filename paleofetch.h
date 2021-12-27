@@ -7,7 +7,6 @@ static char *get_title(),
             *get_kernel(),
             *get_host(),
             *get_uptime(),
-            *get_battery_percentage(),
             *get_packages_pacman(),
             *get_shell(),
             *get_resolution(),
@@ -20,8 +19,8 @@ static char *get_title(),
             *get_disk_usage_home(),
             *get_colors1(),
             *get_colors2(),
+            *get_disk_usage_root(),
             *spacer();
-
 #define SPACER {"", spacer, false},
 #define REMOVE(A) { (A), NULL, sizeof(A) - 1 , 0 }
 #define REPLACE(A, B) { (A), (B), sizeof(A) - 1, sizeof(B) - 1 }

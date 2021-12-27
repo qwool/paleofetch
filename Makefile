@@ -4,6 +4,11 @@ CACHE=$(shell if [ "$$XDG_CACHE_HOME" ]; then echo "$$XDG_CACHE_HOME"; else echo
 
 all: paleofetch
 
+test:
+	$(CC) paleofetch.c -o paleofetch $(CFLAGS)
+	strip paleofetch
+	./paleofetch
+	
 clean:
 	rm -f paleofetch $(CACHE)/paleofetch
 
